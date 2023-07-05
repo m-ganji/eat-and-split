@@ -23,36 +23,38 @@ const initialFriends = [
 ];
 
 export default function App() {
+  const [showAddForm, setShowAddForm] = useState(true);
+
   const [friends, setFriends] = useState(initialFriends);
 
-  function handlerAddFriend({ friend }) {
-    setFriends((friends) => [...friends, friend]);
+  function handlerAddFriend(newFriend) {
+    setFriends([...friends, newFriend]);
   }
 
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList friend={friends} />
+        <FriendsList friends={friends} key={friends.id} />
+        {showAddForm && <FormAddFriend onAddFriend={handlerAddFriend} />}
+        {!showAddForm ? (
+          <Button OnClick={() => setShowAddForm(!showAddForm)}>
+            Add friend
+          </Button>
+        ) : (
+          <Button OnClick={() => setShowAddForm(!showAddForm)}>Close</Button>
+        )}
       </div>
       <FormSplit />
     </div>
   );
 }
 
-function FriendsList({ friend }) {
-  const [showAddForm, setShowAddForm] = useState(true);
-
+function FriendsList({ friends }) {
   return (
     <ul>
-      {friend.map((friend) => (
+      {friends.map((friend, index) => (
         <Friends friend={friend} key={friend.id} />
       ))}
-      {showAddForm && <FormAddFriend />}
-      {!showAddForm ? (
-        <Button OnClick={() => setShowAddForm(!showAddForm)}>Add friend</Button>
-      ) : (
-        <Button OnClick={() => setShowAddForm(!showAddForm)}>Close</Button>
-      )}
     </ul>
   );
 }
@@ -78,7 +80,7 @@ function Button({ children, OnClick }) {
   );
 }
 
-function FormAddFriend() {
+function FormAddFriend({ onAddFriend }) {
   const [inputValue, setInputValue] = useState("");
   const [inputValueURL, setInputValueURL] = useState("");
 
@@ -94,14 +96,14 @@ function FormAddFriend() {
 
     if (!inputValue || !inputValueURL) return;
 
-    const id = crypto.randomUUID();
-
     const newUser = {
       id: crypto.randomUUID(),
       name: inputValue,
-      image: `https://i.pravatar.cc/48?=${id}`,
+      image: `https://i.pravatar.cc/48?=${crypto.randomUUID()}`,
       balance: 0,
     };
+
+    onAddFriend(newUser);
 
     setInputValue("");
     setInputValueURL("");
